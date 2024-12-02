@@ -43,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(user.email),
+              title: Text(currentUser!.email),
               foregroundColor: Theme.of(context).colorScheme.primary,
               actions: [
                 IconButton(

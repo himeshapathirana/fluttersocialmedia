@@ -9,7 +9,7 @@ class FirebaseProfileRepo implements ProfileRepo {
   Future<ProfileUser?> fetchUserProfile(String uid) async {
     try {
       final userDoc =
-          await firebaseFirestore.collection('users').doc(uid).get();
+          await firebaseFirestore.collection('Users').doc(uid).get();
       if (userDoc.exists) {
         final userData = userDoc.data();
         print('Fetched user data: $userData');
