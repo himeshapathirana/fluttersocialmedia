@@ -27,11 +27,8 @@ class _LoginPageState extends State<LoginPage> {
     if (email.isNotEmpty && pw.isNotEmpty) {
       authCubit.login(email, pw);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter both email and password"),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please enter both email and password")));
     }
   }
 
@@ -69,15 +66,17 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 25),
                 // Email text field
                 MyTextField(
-                    controller: emaiController,
-                    hintText: "Email",
-                    obscureText: false),
+                  controller: emaiController,
+                  hintText: "Email",
+                  obscureText: false,
+                ),
                 const SizedBox(height: 10),
                 // Password text field
                 MyTextField(
-                    controller: pwController,
-                    hintText: "Password",
-                    obscureText: true),
+                  controller: pwController,
+                  hintText: "Password",
+                  obscureText: true,
+                ),
                 const SizedBox(height: 25),
                 // Login button
                 MyButton(
