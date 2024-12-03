@@ -3,6 +3,7 @@ import 'package:socialmediaf/features/auth/domain/entities/app_user.dart';
 class ProfileUser extends AppUser {
   final String bio;
   final String profileImageUrl;
+  final String? localImageFile;
 
   ProfileUser({
     required super.uid,
@@ -10,6 +11,7 @@ class ProfileUser extends AppUser {
     required super.name,
     required this.bio,
     required this.profileImageUrl,
+    this.localImageFile,
   });
 
   // copyWith method to modify individual properties

@@ -1,20 +1,22 @@
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:socialmediaf/features/auth/presentation/components/my_text_field.dart';
-import 'package:socialmediaf/profile/domain/entities/profile_users.dart';
-import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart';
-import 'package:socialmediaf/profile/presentation/cubits/profile_states.dart';
+import 'dart:io'; // For handling file operations in mobile applications.
+import 'dart:typed_data'; // For using Uint8List to store image data.
+import 'package:cached_network_image/cached_network_image.dart'; // For loading and caching network images efficiently.
+import 'package:flutter/foundation.dart'
+    show kIsWeb; // For platform checks to distinguish between web and mobile.
+import 'package:file_picker/file_picker.dart'; // For allowing file picking from the device.
+import 'package:flutter/material.dart'; // Core Flutter framework.
+import 'package:flutter_bloc/flutter_bloc.dart'; // For managing state with Bloc.
+import 'package:socialmediaf/features/auth/presentation/components/my_text_field.dart'; // Custom text field widget.
+import 'package:socialmediaf/profile/domain/entities/profile_users.dart'; // Profile user entity class.
+import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart'; // Cubit for managing profile-related logic.
+import 'package:socialmediaf/profile/presentation/cubits/profile_states.dart'; // States for ProfileCubit.
 
 class EditProfilePage extends StatefulWidget {
-  final ProfileUser user;
+  final ProfileUser user; // User data to edit.
+
   const EditProfilePage({
     super.key,
-    required this.user,
+    required this.user, // Requires a user object as a parameter.
   });
 
   @override
@@ -22,15 +24,15 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  PlatformFile? imagePickedFile;
-  Uint8List? webImage;
+  PlatformFile? imagePickedFile; // Holds the file picked by the user.
+  Uint8List?
+      webImage; // Stores the picked image in web-specific Uint8List format.
 
   late TextEditingController bioTextController;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the controller with the current bio
     bioTextController = TextEditingController(text: widget.user.bio);
   }
 
@@ -42,7 +44,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (result != null) {
       setState(() {
         imagePickedFile = result.files.first;
-
         if (kIsWeb) {
           webImage = imagePickedFile!.bytes;
         }
@@ -59,6 +60,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     final String uid = widget.user.uid;
 
+    // Firebase backend logic is commented out for now.
+    /*
+    if (imagePickedFile != null) {
+      // Example of uploading the image to Firebase Storage.
+      final storageRef = FirebaseStorage.instance.ref();
+      final uploadTask = storageRef.child('profileImages/$uid.jpg').putFile(File(imageMobilePath!));
+      final imageUrl = await (await uploadTask).ref.getDownloadURL();
+
+      // Update the user's profile in Firestore.
+      FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'profileImageUrl': imageUrl,
+        'bio': newBio ?? widget.user.bio,
+      });
+    }
+    */
+
+    // Temporary logic to update profile locally for the frontend-only mode.
     if (imagePickedFile != null || newBio != null) {
       profileCubit.updateProfile(
         uid: uid,
@@ -127,27 +145,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 shape: BoxShape.circle,
               ),
               clipBehavior: Clip.hardEdge,
-              child: (!kIsWeb && imagePickedFile != null)
-                  ? Image.file(
-                      File(imagePickedFile!.path!),
-                      fit: BoxFit.cover,
-                    )
-                  : (kIsWeb && webImage != null)
-                      ? Image.memory(webImage!)
-                      : CachedNetworkImage(
-                          imageUrl: widget.user.profileImageUrl,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Icon(
-                            Icons.person,
-                            size: 72,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          imageBuilder: (context, imageProvider) => Image(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+              child: (imagePickedFile != null)
+                  ? (kIsWeb
+                      ? Image.memory(
+                          webImage!,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.file(
+                          File(imagePickedFile!.path!),
+                          fit: BoxFit.cover,
+                        ))
+                  : const Icon(
+                      Icons.person,
+                      size: 72,
+                      color: Colors.grey,
+                    ),
             ),
           ),
           const SizedBox(height: 25),
