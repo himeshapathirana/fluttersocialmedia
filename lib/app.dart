@@ -5,13 +5,16 @@ import 'package:socialmediaf/features/auth/home/presentation/pages/home_page.dar
 import 'package:socialmediaf/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:socialmediaf/features/auth/presentation/cubit/auth_states.dart';
 import 'package:socialmediaf/features/auth/presentation/pages/auth_page.dart';
+import 'package:socialmediaf/features/storage/data/firebase_storage_repo.dart';
+import 'package:socialmediaf/features/storage/domain/storage_repo.dart';
 import 'package:socialmediaf/profile/data/firebase_profile_repo.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart';
 import 'package:socialmediaf/theme/light_model.dart';
 
 class MyApp extends StatelessWidget {
-  final authRepo = FirebaseAuthRepo();
-  final porfileRepo = FirebaseProfileRepo();
+  final firebaseAuthRepo = FirebaseAuthRepo();
+  final firebasePorfileRepo = FirebaseProfileRepo();
+  final firebaseStorageRepo = FirebaseStorageRepo();
 
   MyApp({super.key});
 
@@ -20,10 +23,14 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(authRepo: authRepo)..checkAuth(),
+          create: (context) =>
+              AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
         ),
         BlocProvider<ProfileCubit>(
-          create: (context) => ProfileCubit(profileRepo: porfileRepo),
+          create: (context) => ProfileCubit(
+            profileRepo: firebasePorfileRepo,
+            storageRepo: firebaseStorageRepo,
+          ),
         )
       ],
       child: MaterialApp(
