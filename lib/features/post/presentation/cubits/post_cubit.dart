@@ -21,16 +21,15 @@ class PostCubit extends Cubit<PostState> {
     try {
       if (imagePath != null) {
         emit(PostsUpLoding());
-        imageUrl =
-            await storageRepo.uploadProfileImageMobile(imagePath, post.id);
+        imageUrl = await storageRepo.uploadPostImageMobile(imagePath, post.id);
       } else if (imagePath != null) {
         emit(PostsUpLoding());
-        imageUrl =
-            await storageRepo.uploadProfileImageWeb(imageBytes!, post.id);
+        imageUrl = await storageRepo.uploadPostImageWeb(imageBytes!, post.id);
       }
 
       final newPost = post.copyWith(imageUrl: imageUrl);
       postRepo.createPost(newPost);
+      fetchAllPost();
     } catch (e) {
       throw Exception("failed to create post: $e");
     }
@@ -46,5 +45,9 @@ class PostCubit extends Cubit<PostState> {
     }
   }
 
-  Future<void> deletePost(String postId) async {}
+  Future<void> deletePost(String postId) async {
+    try {
+      await postRepo.deletePost(postId);
+    } catch (e) {}
+  }
 }

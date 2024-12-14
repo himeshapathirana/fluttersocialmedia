@@ -13,12 +13,19 @@ class FirebaseAuthRepo implements AuthRepo {
       UserCredential userCredential = await firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
 
+      //fetch user docuemnt
+      DocumentSnapshot userDoc = await firebaseFirestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
+
       //create user
 
       AppUser user = AppUser(
         uid: userCredential.user!.uid,
         email: email,
         name: '',
+        //name: userDoc('name'),
       );
 
       return user;
@@ -68,6 +75,13 @@ class FirebaseAuthRepo implements AuthRepo {
     if (firebaseUser == null) {
       return null;
     }
+
+    /*DocumentSnapshot userDoc =
+        await firebaseFirestore.collection("users").doc(firebaseUser.uid).get();
+
+        if(!userDoc.exixts){
+        return null;
+        }*/
     return AppUser(
       uid: firebaseUser.uid,
       email: firebaseUser.email!,

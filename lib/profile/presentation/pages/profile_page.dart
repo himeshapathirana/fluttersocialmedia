@@ -71,17 +71,52 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 25),
 
                 // Handle Profile Image Locally
-                Container(
-                  height: 120,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: user.localImageFile != null
-                          ? FileImage(File(user.localImageFile!)) // Local file
-                          : const AssetImage('assets/images/image1.jpg')
-                              as ImageProvider, // Default image
-                      fit: BoxFit.cover,
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.of(context)
+                                .pop(); // Close the dialog on tap outside
+                          },
+                          child: Center(
+                            child: Container(
+                              height:
+                                  250, // Adjust the size for the zoomed image
+                              width: 250,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: user.localImageFile != null
+                                      ? FileImage(File(
+                                          user.localImageFile!)) // Local file
+                                      : const AssetImage(
+                                              'assets/images/image1.jpg')
+                                          as ImageProvider, // Default image
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    height: 120,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: user.localImageFile != null
+                            ? FileImage(
+                                File(user.localImageFile!)) // Local file
+                            : const AssetImage('assets/images/image1.jpg')
+                                as ImageProvider, // Default image
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
