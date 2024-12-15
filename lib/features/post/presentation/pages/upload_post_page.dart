@@ -64,7 +64,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
       userId: currentUser?.uid ?? 'test_user', // Placeholder user ID
       userName: currentUser?.name ?? 'Test User', // Placeholder user name
       text: textController.text,
-      imageUrl: 'assets/images/image1.jpg', // Local image path
+      imageUrl: 'assets/images/imageM.png', // Local image path
       timestamp: DateTime.now(),
     );
 

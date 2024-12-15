@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socialmediaf/features/storage/domain/storage_repo.dart';
+import 'package:socialmediaf/profile/domain/entities/profile_users.dart';
 import 'package:socialmediaf/profile/domain/repository/profile_repo.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_states.dart';
 
@@ -29,6 +30,11 @@ class ProfileCubit extends Cubit<ProfileState> {
       print("Error fetching user profile: $e");
       emit(ProfileError(e.toString()));
     }
+  }
+
+  Future<ProfileUser?> getUserProfile(String uid) async {
+    final user = await profileRepo.fetchUserProfile(uid);
+    return user;
   }
 
   // Update profile or profile picture

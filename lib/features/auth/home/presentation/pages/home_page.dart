@@ -14,11 +14,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final postCubit = context.read<PostCubit>();
+  late final PostCubit postCubit;
 
   @override
   void initState() {
     super.initState();
+    postCubit = context.read<PostCubit>();
+    fetchAllPost(); // Fetch posts when the page is initialized
   }
 
   void fetchAllPost() {
@@ -39,17 +41,18 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UploadPostPage(),
-                )),
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UploadPostPage(),
+              ),
+            ),
             icon: const Icon(Icons.add),
           )
         ],
       ),
       body: BlocBuilder<PostCubit, PostState>(
         builder: (context, state) {
-          if (state is PostsLoding && state is PostsUpLoding) {
+          if (state is PostsLoding || state is PostsUpLoding) {
             // Show loading indicator
             return const Center(child: CircularProgressIndicator());
           } else if (state is PostsLoaded) {
