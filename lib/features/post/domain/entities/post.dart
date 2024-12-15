@@ -8,6 +8,7 @@ class Post {
   final String imageUrl;
   final DateTime timestamp;
   final List<String> likes;
+  final List<Comment> comments;
 
   Post({
     required this.id,
@@ -17,6 +18,7 @@ class Post {
     required this.imageUrl,
     required this.timestamp,
     required this.likes,
+    required this.comments,
   });
 
   Post copyWith({String? imageUrl}) {
@@ -28,6 +30,7 @@ class Post {
       imageUrl: imageUrl ?? this.imageUrl,
       timestamp: timestamp,
       likes: likes,
+      comments: comments,
     );
   }
 
@@ -40,18 +43,52 @@ class Post {
       'imageUrl': imageUrl,
       'timestamp': Timestamp.fromDate(timestamp),
       'likes': likes,
+      'comments': comments.map((comment) => comment.toJson()).toList(),
     };
   }
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    final List<Comment> comments = (json['comments'] as List<dynamic>?)
+            ?.map((commentJson) => Comment.fromJson(commentJson))
+            .toList() ??
+        [];
     return Post(
-      id: json["id"],
-      userId: json["userId"],
-      userName: json["name"],
-      text: json["text"],
-      imageUrl: json["imageUrl"],
+      id: json["id"] ?? "",
+      userId: json["userId"] ?? "",
+      userName: json["name"] ?? "",
+      text: json["text"] ?? "",
+      imageUrl: json["imageUrl"] ?? "",
       timestamp: (json["timestamp"] as Timestamp).toDate(),
       likes: List<String>.from(json['likes'] ?? []),
+      comments: comments,
+    );
+  }
+}
+
+class Comment {
+  final String userId;
+  final String text;
+  final DateTime timestamp;
+
+  Comment({
+    required this.userId,
+    required this.text,
+    required this.timestamp,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': userId,
+      'text': text,
+      'timestamp': Timestamp.fromDate(timestamp),
+    };
+  }
+
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    return Comment(
+      userId: json['userId'] ?? "",
+      text: json['text'] ?? "",
+      timestamp: (json['timestamp'] as Timestamp).toDate(),
     );
   }
 }

@@ -2,11 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socialmediaf/features/auth/domain/entities/app_user.dart';
+import 'package:socialmediaf/features/auth/presentation/components/my_text_field.dart';
 import 'package:socialmediaf/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:socialmediaf/features/post/domain/entities/post.dart';
 import 'package:socialmediaf/features/post/presentation/cubits/post_cubit.dart';
+import 'package:socialmediaf/features/post/presentation/cubits/post_states.dart';
 import 'package:socialmediaf/profile/domain/entities/profile_users.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart';
+import 'package:socialmediaf/profile/presentation/pages/profile_page.dart';
 
 class PostTile extends StatefulWidget {
   final Post post;
@@ -76,6 +79,51 @@ class _PostTileState extends State<PostTile> {
     });
   }
 
+  //comment section
+  final commentTextController = TextEditingController();
+  void openNewCommentBox() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: MyTextField(
+          controller: commentTextController,
+          hintText: "type a coemment",
+          obscureText: false,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              addComment();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancle'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void addComment() {
+    final newComment = Comment(
+      userId: widget.post.userId,
+      text: widget.post.text,
+      timestamp: DateTime.now(),
+    );
+    if (commentTextController.text.isNotEmpty) {
+      postCubit.addComment(widget.post.id, newComment);
+    }
+  }
+
+  @override
+  void dispose() {
+    commentTextController.dispose();
+    super.dispose();
+  }
+
   void showOptions() {
     showDialog(
       context: context,
@@ -141,63 +189,73 @@ class _PostTileState extends State<PostTile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: [
-                // Profile Image
-                postUser?.profileImageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: postUser!.profileImageUrl,
-                        imageBuilder: (context, imageProvider) => Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.3),
-                              width: 2,
-                            ),
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfilePage(
+                  uid: widget.post.userId,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  // Profile Image
+                  postUser?.profileImageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: postUser!.profileImageUrl,
+                          imageBuilder: (context, imageProvider) => Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.3),
+                                width: 2,
+                              ),
+                              image: DecorationImage(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
-                        errorWidget: (context, url, error) => CircleAvatar(
+                          errorWidget: (context, url, error) => CircleAvatar(
+                            backgroundColor: Colors.grey[200],
+                            child: const Icon(Icons.person, color: Colors.grey),
+                          ),
+                        )
+                      : CircleAvatar(
                           backgroundColor: Colors.grey[200],
                           child: const Icon(Icons.person, color: Colors.grey),
                         ),
-                      )
-                    : CircleAvatar(
-                        backgroundColor: Colors.grey[200],
-                        child: const Icon(Icons.person, color: Colors.grey),
-                      ),
-                const SizedBox(width: 12),
-                // Username and Delete Option
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        widget.post.userName,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                  const SizedBox(width: 12),
+                  // Username and Delete Option
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          widget.post.userName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      if (isOwnPost)
-                        IconButton(
-                          onPressed: showOptions,
-                          icon: const Icon(Icons.more_vert),
-                          color: Colors.grey,
-                        ),
-                    ],
+                        if (isOwnPost)
+                          IconButton(
+                            onPressed: showOptions,
+                            icon: const Icon(Icons.more_vert),
+                            color: Colors.grey,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           // Post Image
@@ -258,14 +316,79 @@ class _PostTileState extends State<PostTile> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Icon(Icons.comment),
+                GestureDetector(
+                  onTap: openNewCommentBox,
+                  child: Icon(
+                    Icons.comment,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
                 const SizedBox(width: 5),
-                Text("0"),
+                Text(
+                  widget.post.comments != null
+                      ? widget.post.comments.length.toString()
+                      : '0',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 12,
+                  ),
+                ),
                 const Spacer(),
                 Text(widget.post.timestamp.toString()),
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Text(widget.post.userName),
+                Text(widget.post.text),
+              ],
+            ),
+          ),
+          BlocBuilder<PostCubit, PostState>(
+            builder: (context, state) {
+              if (state is PostsLoaded) {
+                final post =
+                    state.posts.firstWhere((post) => post.id == widget.post.id);
+
+                // Check if the comments are not empty
+                if (post.comments.isNotEmpty) {
+                  int showCommentCount = post.comments.length;
+
+                  return ListView.builder(
+                      itemCount: showCommentCount,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final comment =
+                            post.comments[index]; // Access comments as a list
+                        return Row(
+                          children: [
+                            Text(comment.userId),
+                            Text(comment.text),
+                          ],
+                        );
+                      });
+                }
+              }
+
+              if (state is PostsLoding) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is PostsError) {
+                return Center(
+                  child: Text(state.message),
+                );
+              } else {
+                return const Center(
+                    //child: Text("somthing went wrong!"),
+                    );
+              }
+            },
+          )
         ],
       ),
     );

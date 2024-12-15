@@ -74,4 +74,46 @@ class FirebasePostRepo implements PostRepo {
       throw Exception("Error toddling like: $e");
     }
   }
+
+  @override
+  Future<void> addComment(String postId, Comment comment) async {
+    try {
+      final postDoc = await postsCollection.doc(postId).get();
+      if (postDoc.exists) {
+        final post = Post.fromJson(postDoc.data() as Map<String, dynamic>);
+        post.comments.add(comment);
+
+        await postsCollection.doc(postId).update({
+          'comments': post.comments.map((comment) => comment.toJson()).toList()
+        });
+      } else {
+        throw Exception("post not found");
+      }
+    } catch (e) {
+      throw Exception("eroor adding comment: $e");
+    }
+  }
+
+  @override
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      // Fetch the document for the specified post
+      final postDoc = await postsCollection.doc(postId).get();
+
+      if (postDoc.exists) {
+        // Convert the Firestore document data into a Post object
+        final post = Post.fromJson(postDoc.data() as Map<String, dynamic>);
+
+        post.comments.removeWhere((comment) => comment.userId == commentId);
+        // Update the comments field in Firestore
+        await postsCollection.doc(postId).update({
+          'comments': post.comments.map((comment) => comment.toJson()).toList(),
+        });
+      } else {
+        throw Exception("Post not found");
+      }
+    } catch (e) {
+      throw Exception("Error deleting comment: $e");
+    }
+  }
 }

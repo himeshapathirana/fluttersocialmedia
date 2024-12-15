@@ -58,4 +58,22 @@ class PostCubit extends Cubit<PostState> {
       emit(PostsError("faild to toggle like:$e"));
     }
   }
+
+  Future<void> addComment(String postId, Comment comment) async {
+    try {
+      await postRepo.addComment(postId, comment);
+      await fetchAllPost();
+    } catch (e) {
+      emit(PostsError("faild to load the post $e"));
+    }
+  }
+
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      await postRepo.deleteComment(postId, commentId);
+      await fetchAllPost();
+    } catch (e) {
+      emit(PostsError("failed to delete the comment $e"));
+    }
+  }
 }

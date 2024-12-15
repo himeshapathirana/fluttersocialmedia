@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:socialmediaf/features/auth/domain/entities/app_user.dart';
 import 'package:socialmediaf/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:socialmediaf/features/post/components/post_tile.dart';
+import 'package:socialmediaf/features/post/presentation/cubits/post_cubit.dart';
+import 'package:socialmediaf/features/post/presentation/cubits/post_states.dart';
 import 'package:socialmediaf/profile/presentation/components/bio_box.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_states.dart';
@@ -27,6 +30,7 @@ class _ProfilePageState extends State<ProfilePage> {
   late final profileCubit = context.read<ProfileCubit>();
 
   late AppUser? currentUser = authCubit.currentUser;
+  int postCount = 0;
 
   @override
   void initState() {
@@ -151,6 +155,47 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
+                BlocBuilder<PostCubit, PostState>(builder: (context, state) {
+                  if (state is PostsLoaded) {
+                    final userPosts = state.posts
+                        .where((post) => post.userId == widget.uid)
+                        .toList();
+
+                    postCount = userPosts.length;
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ListView.builder(
+                            itemCount: postCount,
+                            physics:
+                                const NeverScrollableScrollPhysics(), // Prevents nested scrolling
+                            shrinkWrap:
+                                true, // Allows ListView to adjust its height to content
+                            itemBuilder: (context, index) {
+                              final post = userPosts[index];
+
+                              return PostTile(
+                                post: post,
+                                onDeletePressed: () => context
+                                    .read<PostCubit>()
+                                    .deletePost(post.id),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (state is PostsLoding) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text("No posts.."),
+                    );
+                  }
+                })
               ],
             ),
           );
