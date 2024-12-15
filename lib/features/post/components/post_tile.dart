@@ -53,6 +53,29 @@ class _PostTileState extends State<PostTile> {
     }
   }
 
+  void toggleLikePost() {
+    final isLiked = widget.post.likes.contains(currentUser!.uid);
+
+    setState(() {
+      if (isLiked) {
+        widget.post.likes.remove(currentUser!.uid);
+      } else {
+        widget.post.likes.add(currentUser!.uid);
+      }
+    });
+    postCubit
+        .toggleLikePost(widget.post.id, currentUser!.uid)
+        .catchError((error) {
+      setState(() {
+        if (isLiked) {
+          widget.post.likes.add(currentUser!.uid);
+        } else {
+          widget.post.likes.remove(currentUser!.uid);
+        }
+      });
+    });
+  }
+
   void showOptions() {
     showDialog(
       context: context,
@@ -202,6 +225,45 @@ class _PostTileState extends State<PostTile> {
                   color: Colors.grey,
                 ),
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 50,
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: toggleLikePost,
+                        child: Icon(
+                          widget.post.likes.contains(currentUser!.uid)
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: widget.post.likes.contains(currentUser!.uid)
+                              ? Colors.red
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.post.likes.length.toString(),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Icon(Icons.comment),
+                const SizedBox(width: 5),
+                Text("0"),
+                const Spacer(),
+                Text(widget.post.timestamp.toString()),
+              ],
             ),
           ),
         ],

@@ -66,6 +66,7 @@ class _UploadPostPageState extends State<UploadPostPage> {
       text: textController.text,
       imageUrl: 'assets/images/imageM.png', // Local image path
       timestamp: DateTime.now(),
+      likes: [],
     );
 
     // Assuming postCubit creates a post for display or further use
