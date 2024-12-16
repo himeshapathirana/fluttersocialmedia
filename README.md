@@ -14,21 +14,17 @@ This application is designed to provide users with an interactive and user-frien
 - **Profile Customization** - Edit profile details, update profile pictures, and personalize account settings.
 - **Responsive UI** - Optimized design for both mobile and tablet devices, ensuring a seamless user experience.
 
+
 ## Screenshots
 
 Below are some screenshots of the application to give you a glimpse of its interface and functionality:
 
-![Home Screen](images/home.png)
-*The Home Screen displays the latest posts from followed users.*
-
-![Light Mode](images/lightMode.png)
-*The app supports a light mode interface for better visibility.*
-
-![Profile Screen](images/profile.png)
-*The Profile Screen allows users to view and edit their profiles.*
-
-![View Feature](images/view.png)
-*Users can explore detailed views of posts and profiles.*
+<p align="center">
+  <img src="images/home.png" alt="Home Screen" width="200"/>
+  <img src="images/lightMode.png" alt="Light Mode" width="200"/>
+  <img src="images/profile.png" alt="Profile Screen" width="200"/>
+  <img src="images/view.png" alt="View Feature" width="200"/>
+</p>
 
 ## Technologies Used
 
