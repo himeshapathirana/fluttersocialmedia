@@ -14,12 +14,17 @@ class FirebaseProfileRepo implements ProfileRepo {
         final userData = userDoc.data();
         print('Fetched user data: $userData');
         if (userData != null) {
+          final followers = List<String>.from(userData['followers'] ?? []);
+          final following = List<String>.from(userData['following'] ?? []);
+
           return ProfileUser(
             uid: uid,
             email: userData['email'],
             name: userData['name'],
             bio: userData['bio'] ?? '',
             profileImageUrl: userData['profileImageUrl'].toString(),
+            followers: followers,
+            following: following,
           );
         }
       }
@@ -45,5 +50,40 @@ class FirebaseProfileRepo implements ProfileRepo {
       print("Error updating profile: $e");
       throw Exception("Error updating profile: $e");
     }
+  }
+
+  @override
+  Future<void> toggleFollow(String currentUid, String targetUid) async {
+    try {
+      final currentUserDoc =
+          await firebaseFirestore.collection('users').doc(currentUid).get();
+      final targetUserDoc =
+          await firebaseFirestore.collection('users').doc(targetUid).get();
+      if (currentUserDoc.exists && targetUserDoc.exists) {
+        final currentUserData = currentUserDoc.data();
+        final targetUserData = targetUserDoc.data();
+
+        if (currentUserData != null && targetUserData != null) {
+          final List<String> currentFollowing =
+              List<String>.from(currentUserData['following'] ?? []);
+
+          if (currentFollowing.contains(targetUid)) {
+            await firebaseFirestore.collection('user').doc(currentUid).update({
+              'following': FieldValue.arrayRemove([targetUid])
+            });
+            await firebaseFirestore.collection('user').doc(targetUid).update({
+              'following': FieldValue.arrayRemove([currentUid])
+            });
+          } else {
+            await firebaseFirestore.collection('user').doc(currentUid).update({
+              'following': FieldValue.arrayUnion([targetUid])
+            });
+            await firebaseFirestore.collection('user').doc(targetUid).update({
+              'following': FieldValue.arrayUnion([currentUid])
+            });
+          }
+        }
+      }
+    } catch (e) {}
   }
 }

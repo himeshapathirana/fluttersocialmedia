@@ -9,6 +9,7 @@ import 'package:socialmediaf/features/post/components/post_tile.dart';
 import 'package:socialmediaf/features/post/presentation/cubits/post_cubit.dart';
 import 'package:socialmediaf/features/post/presentation/cubits/post_states.dart';
 import 'package:socialmediaf/profile/presentation/components/bio_box.dart';
+import 'package:socialmediaf/profile/presentation/components/follow_button.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_cubit.dart';
 import 'package:socialmediaf/profile/presentation/cubits/profile_states.dart';
 import 'package:socialmediaf/profile/presentation/pages/edit_profile.dart';
@@ -35,16 +36,34 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    print('Fetching profile for UID: ${widget.uid}');
     profileCubit.fetchUserProfile(widget.uid);
+  }
+
+  void followButtonPressed() {
+    final profileState = profileCubit.state;
+    if (profileState is! ProfileLoaded) {
+      return;
+    }
+    final profileUser = profileState.profileUser;
+    final isFollowing = profileUser.followers.contains(currentUser!.uid);
+
+    // Only toggle the follow status if it's not the same as the current follow status.
+    if (isFollowing) {
+      profileCubit.toggleFollow(currentUser!.uid, widget.uid); // Unfollow
+    } else {
+      profileCubit.toggleFollow(currentUser!.uid, widget.uid); // Follow
+    }
+
+    // You can update the UI and persist the follow/unfollow status in your state management.
+    // For example, you can call setState to update the button immediately.
+    setState(() {}); // Trigger re-render after follow/unfollow action.
   }
 
   @override
   Widget build(BuildContext context) {
+    bool isOwnPost = (widget.uid == currentUser!.uid);
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
-        print("Current State: $state");
-
         if (state is ProfileLoaded) {
           final user = state.profileUser;
 
@@ -53,23 +72,26 @@ class _ProfilePageState extends State<ProfilePage> {
               title: Text(currentUser!.email),
               foregroundColor: Theme.of(context).colorScheme.primary,
               actions: [
-                IconButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditProfilePage(user: user),
+                if (isOwnPost)
+                  IconButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(user: user),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.settings),
-                )
+                    icon: const Icon(Icons.settings),
+                  )
               ],
             ),
-            body: Column(
+            body: ListView(
               children: [
-                Text(
-                  user.email,
-                  style:
-                      TextStyle(color: Theme.of(context).colorScheme.primary),
+                Center(
+                  child: Text(
+                    user.email,
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                  ),
                 ),
 
                 const SizedBox(height: 25),
@@ -125,6 +147,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
 
+                const SizedBox(height: 25),
+                if (!isOwnPost)
+                  FollowButton(
+                    onPressed:
+                        followButtonPressed, // Pass the method to toggle follow
+                    isFollowing: user.followers.contains(
+                        currentUser!.uid), // Check if current user is following
+                  ),
                 const SizedBox(height: 25),
 
                 Padding(

@@ -4,6 +4,8 @@ class ProfileUser extends AppUser {
   final String bio;
   final String profileImageUrl;
   final String? localImageFile;
+  final List<String> followers;
+  final List<String> following;
 
   ProfileUser({
     required super.uid,
@@ -12,16 +14,25 @@ class ProfileUser extends AppUser {
     required this.bio,
     required this.profileImageUrl,
     this.localImageFile,
+    required this.followers,
+    required this.following,
   });
 
   // copyWith method to modify individual properties
-  ProfileUser copyWith({String? newBio, String? newProfileImageUrl}) {
+  ProfileUser copyWith({
+    String? newBio,
+    String? newProfileImageUrl,
+    List<String>? newFollowers,
+    List<String>? newFollowing,
+  }) {
     return ProfileUser(
       uid: uid,
       email: email,
       name: name,
       bio: newBio ?? bio,
       profileImageUrl: newProfileImageUrl ?? profileImageUrl,
+      followers: newFollowers ?? followers,
+      following: newFollowing ?? following,
     );
   }
 
@@ -34,6 +45,8 @@ class ProfileUser extends AppUser {
       'name': name,
       'bio': bio,
       'profileImageUrl': profileImageUrl,
+      'followers': followers,
+      'following': following,
     };
   }
 
@@ -44,8 +57,10 @@ class ProfileUser extends AppUser {
       email: json['email'],
       name: json['name'],
       bio: json['bio'] ?? '', // Default to empty string if no bio
-      profileImageUrl: json['profileImageUrl'] ??
-          '', // Default to empty string if no profileImageUrl
+      profileImageUrl: json['profileImageUrl'] ?? '',
+      followers: List<String>.from(json['followers'] ?? []),
+      following: List<String>.from(json['following'] ?? []),
+      // Default to empty string if no profileImageUrl
     );
   }
 }
