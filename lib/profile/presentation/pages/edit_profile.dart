@@ -1,6 +1,6 @@
 import 'dart:io'; // For handling file operations in mobile applications.
 import 'dart:typed_data'; // For using Uint8List to store image data.
-import 'package:cached_network_image/cached_network_image.dart'; // For loading and caching network images efficiently.
+// For loading and caching network images efficiently.
 import 'package:flutter/foundation.dart'
     show kIsWeb; // For platform checks to distinguish between web and mobile.
 import 'package:file_picker/file_picker.dart'; // For allowing file picking from the device.
